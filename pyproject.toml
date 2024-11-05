@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "schematools"
+version = "0.1.0"
+description = ""
+authors = ["Ken Payne"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+jsonschema = "^4.23.0"
+pyarrow = "^17.0.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
