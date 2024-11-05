@@ -92,3 +92,7 @@ class ObjectType(BaseJSONType):
 
             return {k: JSONSchema.parse(v) for k, v in self._properties.items()}
         return self._properties
+
+    def has_properties(self) -> bool:
+        """Check if object has properties."""
+        return self.properties is not None

@@ -72,11 +72,20 @@ class ArrowSchema:
     """Apache Arrow schema representation."""
 
     @classmethod
-    def from_jsonschema(
-        cls, jsonschema: dict, flatten: bool | int | None = None
-    ) -> pa.Schema:
+    def from_jsonschema(cls, jsonschema: dict) -> pa.Schema:
         """Convert JSON schema to Apache Arrow schema."""
         json_schema = JSONSchema.parse(jsonschema)
+        if isinstance(json_schema, ObjectType) and json_schema.has_properties():
+            return pa.schema(
+                [
+                    pa.field(
+                        name=k,
+                        type=JSONToArrowTypeMap().convert(v),
+                        # nullable=jsonschema.get("nullable", True),
+                    )
+                    for k, v in json_schema.properties.items()
+                ]
+            )
         return pa.schema(
             [
                 pa.field(
