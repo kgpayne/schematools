@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "schematools"
-version = "0.1.0"
-description = ""
+version = "0.0.0"
+description = "Tools in Python for interoberability of schemas."
 authors = ["Ken Payne"]
 readme = "README.md"
 
@@ -15,5 +15,10 @@ pyarrow = "^17.0.0"
 pytest = "^8.3.3"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "semver"
