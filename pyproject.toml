@@ -4,7 +4,7 @@ version = "0.0.0"
 description = "Tools in Python for interoberability of schemas."
 authors = ["Ken Payne"]
 readme = "README.md"
-packages = [{ include = "src/schematools" }]
+packages = [{ include = "schematools", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
