@@ -1,15 +1,15 @@
-from schematools.jsonschema import JSONSchema, ObjectType
+from schematools.jsonschema import JSONSchemaParser, ObjectType
 
 
 def test_object_type():
     """Test object type."""
-    object_type = JSONSchema.parse({"type": "object"})
+    object_type = JSONSchemaParser.parse({"type": "object"})
     assert isinstance(object_type, ObjectType)
 
 
 def test_simple_object_properties():
     """Test object properties."""
-    object_type = JSONSchema.parse(
+    object_type = JSONSchemaParser.parse(
         {
             "type": "object",
             "properties": {
@@ -19,14 +19,14 @@ def test_simple_object_properties():
         }
     )
     assert object_type.properties == {
-        "name": JSONSchema.parse({"type": "string"}),
-        "age": JSONSchema.parse({"type": "integer"}),
+        "name": JSONSchemaParser.parse({"type": "string"}),
+        "age": JSONSchemaParser.parse({"type": "integer"}),
     }
 
 
 def test_nested_object_properties():
     """Test nested object properties."""
-    object_type = JSONSchema.parse(
+    object_type = JSONSchemaParser.parse(
         {
             "type": "object",
             "properties": {
@@ -48,7 +48,7 @@ def test_nested_object_properties():
         }
     )
     assert object_type.properties == {
-        "address": JSONSchema.parse(
+        "address": JSONSchemaParser.parse(
             {
                 "type": "object",
                 "properties": {

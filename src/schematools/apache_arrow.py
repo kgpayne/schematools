@@ -7,7 +7,7 @@ from schematools.jsonschema import (
     BaseJSONType,
     BooleanType,
     IntegerType,
-    JSONSchema,
+    JSONSchemaParser,
     NullType,
     NumberType,
     ObjectType,
@@ -74,7 +74,7 @@ class ArrowSchema:
     @classmethod
     def from_jsonschema(cls, jsonschema: dict) -> pa.Schema:
         """Convert JSON schema to Apache Arrow schema."""
-        json_schema = JSONSchema.parse(jsonschema)
+        json_schema = JSONSchemaParser.parse(jsonschema)
         if isinstance(json_schema, ObjectType) and json_schema.has_properties():
             return pa.schema(
                 [

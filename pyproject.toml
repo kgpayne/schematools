@@ -10,6 +10,7 @@ packages = [{ include = "schematools", from = "src" }]
 python = "^3.11"
 jsonschema = "^4.23.0"
 pyarrow = "^17.0.0"
+class-singledispatch = "^1.2.3.post2"
 
 
 [tool.poetry.group.dev.dependencies]
