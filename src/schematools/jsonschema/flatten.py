@@ -1,3 +1,4 @@
+import dataclasses
 import typing as t
 
 from schematools.jsonschema.base import BaseJSONType
@@ -11,8 +12,8 @@ def flatten(
     jsonschema: BaseJSONType, max_depth: int | None = None, separator: str | None = None
 ) -> BaseJSONType:
     """Flatten JSON schema."""
-    max_depth = max_depth or DEFAULT_MAX_DEPTH
-    separator = separator or DEFAULT_SEPARATOR
+    max_depth = max_depth if max_depth is not None else DEFAULT_MAX_DEPTH
+    separator = separator if separator is not None else DEFAULT_SEPARATOR
 
     if max_depth <= 0:
         return jsonschema
@@ -32,7 +33,7 @@ def flatten(
                 )
             else:
                 flattened_properties[key] = value
-        # TODO: return a copy of the object with the new properties, rather than modifying the original object
-        jsonschema.properties = flattened_properties
+
+        return dataclasses.replace(jsonschema, properties=flattened_properties)
 
     return jsonschema

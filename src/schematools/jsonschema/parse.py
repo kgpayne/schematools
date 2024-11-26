@@ -76,7 +76,17 @@ def parse_number(jsontype: t.Type[NumberType], jsonschema: dict) -> t.Any:
 
 @parse_type.register
 def parse_object(jsontype: t.Type[ObjectType], jsonschema: dict) -> t.Any:
-    return ObjectType(**jsonschema)
+    kwargs = deepcopy(jsonschema)
+    kwargs = _handle_special_keys(kwargs)
+    # handle properties
+    properties = kwargs.get("properties")
+    if properties:
+        kwargs["properties"] = {
+            k: parse_type(json_schema_root_type_map[v["type"]], v)
+            for k, v in properties.items()
+        }
+    # TODO: handle patternProperties, additionalProperties etc.
+    return ObjectType(**kwargs)
 
 
 @parse_type.register
