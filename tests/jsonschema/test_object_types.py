@@ -54,15 +54,13 @@ def test_nested_object_properties():
                 "properties": {
                     "street": {"type": "string"},
                     "city": {"type": "string"},
-                    "house": JSONSchema.parse(
-                        {
-                            "type": "object",
-                            "properties": {
-                                "number": {"type": "integer"},
-                                "owner": {"type": "string"},
-                            },
-                        }
-                    ),
+                    "house": {
+                        "type": "object",
+                        "properties": {
+                            "number": {"type": "integer"},
+                            "owner": {"type": "string"},
+                        },
+                    },
                 },
             }
         )

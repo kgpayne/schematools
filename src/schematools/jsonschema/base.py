@@ -25,6 +25,8 @@ T = t.TypeVar("T", bound=_JsonValue)
 
 class BaseJSONType:
 
+    _special_keys = ["$id", "$schema", "$comment"]
+
     _plain_key_map = {
         "type": "type",
         "title": "title",
@@ -37,8 +39,6 @@ class BaseJSONType:
         "enum": "enum",
         "const": "const",
     }
-
-    _special_keys = ["$id", "$schema", "$comment"]
 
     def __init__(
         self,
@@ -59,6 +59,7 @@ class BaseJSONType:
     ):
         self.id = id
         self.schema = schema
+        self.comment = comment
         self.type = type
         self.title = title
         self.description = description
@@ -67,7 +68,6 @@ class BaseJSONType:
         self.read_only = read_only
         self.write_only = write_only
         self.deprecated = deprecated
-        self.comment = comment
         self.enum = enum
         self.const = const
 
@@ -83,23 +83,21 @@ class BaseJSONType:
         )
         return cls(**kwargs)
 
+    @property
+    def _class_properties(self) -> set[str]:
+        """Return class properties."""
+        return set(
+            list(self._plain_key_map.values()) + [k[1:] for k in self._special_keys]
+        )
+
     def __eq__(self, value: object) -> bool:
         return all(
             [
-                isinstance(value, BaseJSONType),
-                self.id == value.id,
-                self.schema == value.schema,
-                self.type == value.type,
-                self.title == value.title,
-                self.description == value.description,
-                self.default == value.default,
-                self.examples == value.examples,
-                self.read_only == value.read_only,
-                self.write_only == value.write_only,
-                self.deprecated == value.deprecated,
-                self.comment == value.comment,
-                self.enum == value.enum,
-                self.const == value.const,
+                isinstance(value, type(self)),
+                *[
+                    getattr(self, k) == getattr(value, k)
+                    for k in self._class_properties
+                ],
             ]
         )
 

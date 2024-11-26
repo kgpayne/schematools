@@ -23,15 +23,7 @@ def test_arrow_schema_object():
     )
     assert arrow_schema == pa.schema(
         [
-            pa.field(
-                "root",
-                pa.struct(
-                    [
-                        pa.field("name", pa.string(), nullable=True),
-                        pa.field("age", pa.int64(), nullable=True),
-                    ]
-                ),
-                nullable=True,
-            )
+            pa.field("name", pa.string(), nullable=True),
+            pa.field("age", pa.int64(), nullable=True),
         ]
     )

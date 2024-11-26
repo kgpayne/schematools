@@ -57,17 +57,6 @@ class StringType(BaseJSONType):
             return string_class(**kwargs)
         return cls(**kwargs)
 
-    def __eq__(self, value: object) -> bool:
-        return super().__eq__(value) and all(
-            [
-                isinstance(value, StringType),
-                self.format == value.format,
-                self.min_length == value.min_length,
-                self.max_length == value.max_length,
-                self.pattern == value.pattern,
-            ]
-        )
-
 
 class DateTimeType(StringType):
     """DateTime type.
