@@ -1,10 +1,10 @@
-from schematools.jsonschema import JSONSchema
+from schematools.jsonschema import JSONSchemaParser
 from schematools.jsonschema.flatten import flatten
 
 
 def test_flatten():
     """Test flatten."""
-    schema = JSONSchema.parse(
+    schema = JSONSchemaParser.parse(
         {
             "type": "object",
             "properties": {
@@ -28,7 +28,7 @@ def test_flatten():
         }
     )
     flattened = flatten(schema)
-    expected = JSONSchema.parse(
+    expected = JSONSchemaParser.parse(
         {
             "type": "object",
             "properties": {
@@ -46,7 +46,7 @@ def test_flatten():
 
 def test_no_flatten():
     """Test no flatten."""
-    schema = JSONSchema.parse(
+    schema = JSONSchemaParser.parse(
         {
             "type": "object",
             "properties": {
@@ -75,7 +75,7 @@ def test_no_flatten():
 
 def test_flatten_max_depth():
     """Test flatten max depth."""
-    schema = JSONSchema.parse(
+    schema = JSONSchemaParser.parse(
         {
             "type": "object",
             "properties": {
@@ -99,7 +99,7 @@ def test_flatten_max_depth():
         }
     )
     flattened = flatten(schema, max_depth=1)
-    expected = JSONSchema.parse(
+    expected = JSONSchemaParser.parse(
         {
             "type": "object",
             "properties": {
