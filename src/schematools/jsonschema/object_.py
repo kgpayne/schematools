@@ -20,8 +20,8 @@ class ObjectType(BaseJSONType):
         "minProperties": "min_properties",
         "maxProperties": "max_properties",
         "allOf": "all_of",
-        "anyOf": "anyOf",
-        "oneOf": "oneOf",
+        "anyOf": "any_of",
+        "oneOf": "one_of",
         "not": "not_",
         "if": "if_",
         "then": "then",
@@ -66,7 +66,7 @@ class ObjectType(BaseJSONType):
             **kwargs: Additional keyword arguments to pass to the parent class.
         """
         super().__init__(**kwargs)
-        self._properties = properties
+        self.properties = self._parse_properties(properties)
         self.additional_properties = additional_properties
         self.pattern_properties = pattern_properties
         self.unevaluated_properties = unevaluated_properties
@@ -84,14 +84,15 @@ class ObjectType(BaseJSONType):
         self.dependent_required = dependent_required
         self.dependent_schemas = dependent_schemas
 
-    @property
-    def properties(self) -> t.Dict[str, JSONSchema] | None:
-        """Return the properties."""
-        if self._properties is not None:
+    @classmethod
+    def _parse_properties(
+        cls, properties: t.Dict[str, dict] | None
+    ) -> t.Dict[str, JSONSchema] | None:
+        if properties is not None:
             from schematools.jsonschema import JSONSchema
 
-            return {k: JSONSchema.parse(v) for k, v in self._properties.items()}
-        return self._properties
+            return {k: JSONSchema.parse(v) for k, v in properties.items()}
+        return properties
 
     def has_properties(self) -> bool:
         """Check if object has properties."""
