@@ -1,20 +1,23 @@
-import json
-import typing as t
+"""JSON Schema tools for Python."""
 
-from .array import ArrayType
-from .base import BaseJSONType, BooleanType, NullType
-from .numeric import IntegerType, NumberType
-from .object_ import ObjectType
+from .flatten import flatten
 from .parse import JSONSchemaParser
-from .string import (
+from .types import (
+    ArrayType,
+    BaseJSONType,
+    BooleanType,
     DateTimeType,
     DateType,
     DurationType,
     EmailType,
     HostnameType,
+    IntegerType,
     IPv4Type,
     IPv6Type,
     JSONPointerType,
+    NullType,
+    NumberType,
+    ObjectType,
     RegexType,
     RelativeJSONPointerType,
     StringType,
@@ -33,6 +36,7 @@ __all__ = [
     "DateType",
     "DurationType",
     "EmailType",
+    "flatten",
     "HostnameType",
     "IntegerType",
     "IPv4Type",

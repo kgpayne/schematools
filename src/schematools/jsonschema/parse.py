@@ -6,11 +6,16 @@ from copy import deepcopy
 
 from class_singledispatch import class_singledispatch
 
-from .array import ArrayType
-from .base import BaseJSONType, BooleanType, NullType
-from .numeric import IntegerType, NumberType
-from .object_ import ObjectType
-from .string import StringType
+from .types import (
+    ArrayType,
+    BaseJSONType,
+    BooleanType,
+    IntegerType,
+    NullType,
+    NumberType,
+    ObjectType,
+    StringType,
+)
 
 json_schema_root_type_map = {
     "array": ArrayType,

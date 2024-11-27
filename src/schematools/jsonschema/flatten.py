@@ -1,8 +1,8 @@
-import dataclasses
-import typing as t
+"""Flatten JSON schema."""
 
-from schematools.jsonschema.base import BaseJSONType
-from schematools.jsonschema.object_ import ObjectType
+import dataclasses
+
+from schematools.jsonschema.types import BaseJSONType, ObjectType
 
 DEFAULT_MAX_DEPTH = 10
 DEFAULT_SEPARATOR = "__"
