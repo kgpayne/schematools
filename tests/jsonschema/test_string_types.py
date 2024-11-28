@@ -1,7 +1,7 @@
 import pytest
 
 from schematools.jsonschema import (
-    BaseJSONType,
+    BaseJSONSchemaType,
     DateTimeType,
     DateType,
     DurationType,

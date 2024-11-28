@@ -4,7 +4,7 @@ from .flatten import flatten
 from .parse import JSONSchemaParser
 from .types import (
     ArrayType,
-    BaseJSONType,
+    BaseJSONSchemaType,
     BooleanType,
     DateTimeType,
     DateType,
@@ -30,7 +30,7 @@ from .types import (
 
 __all__ = [
     "ArrayType",
-    "BaseJSONType",
+    "BaseJSONSchemaType",
     "BooleanType",
     "DateTimeType",
     "DateType",

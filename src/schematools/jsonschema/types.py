@@ -25,7 +25,7 @@ T = t.TypeVar("T", bound=_JsonValue)
 
 
 @dataclass(frozen=True)
-class BaseJSONType:
+class BaseJSONSchemaType:
 
     id: str | None = None
     schema: str | None = None
@@ -43,14 +43,14 @@ class BaseJSONType:
 
 
 @dataclass(frozen=True)
-class BooleanType(BaseJSONType):
+class BooleanType(BaseJSONSchemaType):
     """Boolean type."""
 
     type: str = "boolean"
 
 
 @dataclass(frozen=True)
-class NullType(BaseJSONType):
+class NullType(BaseJSONSchemaType):
     """Null type."""
 
     type: str = "null"
@@ -62,27 +62,27 @@ class NullType(BaseJSONType):
 
 
 @dataclass(frozen=True)
-class ObjectType(BaseJSONType):
+class ObjectType(BaseJSONSchemaType):
     """Object type."""
 
     type: str = "object"
-    properties: t.Dict[str, BaseJSONType] | None = None
-    additionalProperties: bool | BaseJSONType | None = None
-    patternProperties: t.Dict[str, BaseJSONType] | None = None
-    unevaluatedProperties: BaseJSONType | None = None
+    properties: t.Dict[str, BaseJSONSchemaType] | None = None
+    additionalProperties: bool | BaseJSONSchemaType | None = None
+    patternProperties: t.Dict[str, BaseJSONSchemaType] | None = None
+    unevaluatedProperties: BaseJSONSchemaType | None = None
     required: t.List[str] | None = None
     minProperties: int | None = None
     maxProperties: int | None = None
-    allOf: t.List[BaseJSONType] | None = None
-    anyOf: t.List[BaseJSONType] | None = None
-    oneOf: t.List[BaseJSONType] | None = None
-    not_: BaseJSONType | None = None
-    if_: BaseJSONType | None = None
-    then: BaseJSONType | None = None
-    else_: BaseJSONType | None = None
-    propertyNames: BaseJSONType | None = None
+    allOf: t.List[BaseJSONSchemaType] | None = None
+    anyOf: t.List[BaseJSONSchemaType] | None = None
+    oneOf: t.List[BaseJSONSchemaType] | None = None
+    not_: BaseJSONSchemaType | None = None
+    if_: BaseJSONSchemaType | None = None
+    then: BaseJSONSchemaType | None = None
+    else_: BaseJSONSchemaType | None = None
+    propertyNames: BaseJSONSchemaType | None = None
     dependentRequired: t.Dict[str, t.List[str]] | None = None
-    dependentSchemas: t.Dict[str, BaseJSONType] | None = None
+    dependentSchemas: t.Dict[str, BaseJSONSchemaType] | None = None
 
     def has_properties(self) -> bool:
         """Check if object has properties."""
@@ -95,15 +95,15 @@ class ObjectType(BaseJSONType):
 
 
 @dataclass(frozen=True)
-class ArrayType(BaseJSONType):
+class ArrayType(BaseJSONSchemaType):
     """Array type."""
 
     type: str = "array"
-    items: BaseJSONType | bool | None = None
-    prefixItems: t.List[BaseJSONType] | None = None
-    additionalItems: BaseJSONType | bool | None = None
-    unevaluatedItems: BaseJSONType | bool | None = None
-    contains: BaseJSONType | None = None
+    items: BaseJSONSchemaType | bool | None = None
+    prefixItems: t.List[BaseJSONSchemaType] | None = None
+    additionalItems: BaseJSONSchemaType | bool | None = None
+    unevaluatedItems: BaseJSONSchemaType | bool | None = None
+    contains: BaseJSONSchemaType | None = None
     minContains: int | None = None
     maxContains: int | None = None
     minItems: int | None = None
@@ -117,7 +117,7 @@ class ArrayType(BaseJSONType):
 
 
 @dataclass(frozen=True)
-class _NumericType(BaseJSONType):
+class _NumericType(BaseJSONSchemaType):
     """Numeric type."""
 
     minimum: int | float | None = None
@@ -147,7 +147,7 @@ class IntegerType(_NumericType):
 
 
 @dataclass(frozen=True)
-class StringType(BaseJSONType):
+class StringType(BaseJSONSchemaType):
     """String type."""
 
     type: str = "string"

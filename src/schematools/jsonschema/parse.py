@@ -8,7 +8,7 @@ from class_singledispatch import class_singledispatch
 
 from .types import (
     ArrayType,
-    BaseJSONType,
+    BaseJSONSchemaType,
     BooleanType,
     IntegerType,
     NullType,
@@ -25,7 +25,7 @@ json_schema_root_type_map = {
     "number": NumberType,
     "object": ObjectType,
     "string": StringType,
-    None: BaseJSONType,
+    None: BaseJSONSchemaType,
 }
 
 
@@ -41,7 +41,9 @@ def _handle_special_keys(jsonschema: dict) -> dict:
 
 
 @class_singledispatch
-def parse_type(jsontype: t.Type[BaseJSONType], jsonschema: dict | None = None) -> t.Any:
+def parse_type(
+    jsontype: t.Type[BaseJSONSchemaType], jsonschema: dict | None = None
+) -> t.Any:
     raise NotImplementedError(f"Parsing of {jsontype} is not supported.")
 
 
@@ -102,7 +104,7 @@ def parse_string(jsontype: t.Type[StringType], jsonschema: dict) -> t.Any:
 class JSONSchemaParser:
 
     @classmethod
-    def parse(cls, jsonschema: dict | str) -> BaseJSONType:
+    def parse(cls, jsonschema: dict | str) -> BaseJSONSchemaType:
         jsonschema = (
             json.loads(jsonschema) if isinstance(jsonschema, str) else jsonschema
         )

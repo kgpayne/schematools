@@ -1,6 +1,6 @@
 import pyarrow as pa
 
-from schematools.apache_arrow import ArrowSchema
+from schematools.arrow import ArrowSchema
 
 
 def test_arrow_schema_null():
