@@ -51,21 +51,38 @@ class UnionType(BaseJSONSchemaType):
         if self.type is None:
             raise ValueError("types must be provided")
 
+    def is_nullable(self) -> bool:
+        """Check if type is nullable."""
+        return any(isinstance(t, NullType) for t in self.type)
+
+    def is_simple_nullable(self) -> bool:
+        """Check if type is simple nullable.
+
+        This checks for a special case of nullable, where the jsonschema representation
+        is effectively a simple type or null. E.g. `{"type": ["string", "null"]}`. In
+        other schema representations, nullable is commonly a flag on the type, e.g. in
+        PyArrow `pa.string(nullable=True)`.
+        """
+        return len(self.type) == 2 and any(isinstance(t, NullType) for t in self.type)
+
+    @property
+    def simple_nullable_type(self) -> BaseJSONSchemaType:
+        """Get simple nullable type."""
+        if self.is_simple_nullable():
+            return next(t for t in self.type if not isinstance(t, NullType))
+        raise ValueError("UnionType is not simple nullable")
+
     @classmethod
     def from_types(cls, types: t.List[t.Type[BaseJSONSchemaType]]) -> UnionType:
         """Create UnionType from types."""
 
-        @dataclass(frozen=True, eq=False)
+        @dataclass(frozen=True)
         class CustomUnionType(UnionType, *types):
             """Custom UnionType class."""
 
             type = [t.type for t in types]
 
         return CustomUnionType
-
-    def is_nullable(self) -> bool:
-        """Check if type is nullable."""
-        return any(isinstance(t, NullType) for t in self.type)
 
 
 @dataclass(frozen=True)

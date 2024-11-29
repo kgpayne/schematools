@@ -118,10 +118,12 @@ def parse_string(jsontype: t.Type[StringType], jsonschema: dict) -> t.Any:
 class JSONSchemaParser:
 
     @classmethod
-    def parse(cls, jsonschema: dict | str) -> BaseJSONSchemaType:
+    def parse(cls, jsonschema: dict | str) -> BaseJSONSchemaType | None:
         jsonschema = (
             json.loads(jsonschema) if isinstance(jsonschema, str) else jsonschema
         )
         jsonschema = _handle_special_keys(jsonschema)
-        simple_type_class = json_schema_root_type_map[jsonschema.get("type")]
-        return parse_type(simple_type_class, jsonschema=jsonschema)
+        type_ = jsonschema.get("type")
+        if type_:
+            simple_type_class = _handle_type(jsonschema)
+            return parse_type(simple_type_class, jsonschema=jsonschema)

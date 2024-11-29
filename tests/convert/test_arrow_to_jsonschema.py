@@ -34,3 +34,12 @@ def test_arrow_array_union_type():
             {"type": "array", "items": {"type": ["string", "integer"]}}
         ).type
     )
+
+
+def test_arrow_nullable():
+    """Test conversion of nullable fields."""
+    arrow_schema = pa.schema([pa.field("root", pa.string(), nullable=True)])
+    jsonschema = ArrowJSONSchemaConverter.to_jsonschema(arrow_schema)
+    expected_jsonschema = JSONSchemaParser.parse({"type": ["string", "null"]})
+    # TODO: fix equality check between two constructs of the same class
+    assert jsonschema.type == expected_jsonschema.type
