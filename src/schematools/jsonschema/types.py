@@ -30,7 +30,7 @@ class BaseJSONSchemaType:
     id: str | None = None
     schema: str | None = None
     comment: str | None = None
-    type: str | None = None
+    type: str | list[str] | None = None
     title: str | None = None
     description: str | None = None
     default: T | None = None
@@ -40,6 +40,32 @@ class BaseJSONSchemaType:
     deprecated: bool | None = None
     enum: t.List[T] | None = None
     const: T | None = None
+
+
+class UnionType(BaseJSONSchemaType):
+    """Multi type."""
+
+    type: t.List[str] | None = None
+
+    def __post_init__(self):
+        if self.type is None:
+            raise ValueError("types must be provided")
+
+    @classmethod
+    def from_types(cls, types: t.List[t.Type[BaseJSONSchemaType]]) -> UnionType:
+        """Create UnionType from types."""
+
+        @dataclass(frozen=True, eq=False)
+        class CustomUnionType(UnionType, *types):
+            """Custom UnionType class."""
+
+            type = [t.type for t in types]
+
+        return CustomUnionType
+
+    def is_nullable(self) -> bool:
+        """Check if type is nullable."""
+        return any(isinstance(t, NullType) for t in self.type)
 
 
 @dataclass(frozen=True)

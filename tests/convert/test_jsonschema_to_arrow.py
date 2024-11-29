@@ -1,18 +1,20 @@
 import pyarrow as pa
 
-from schematools.arrow import ArrowSchema
+from schematools.arrow import ArrowJSONSchemaConverter
+from schematools.jsonschema.parse import JSONSchemaParser
 
 
 def test_arrow_schema_null():
     """Test ArrowSchema."""
-    arrow_schema = ArrowSchema.from_jsonschema({"type": "null"})
+    jsonschema = JSONSchemaParser.parse({"type": "null"})
+    arrow_schema = ArrowJSONSchemaConverter.from_jsonschema(jsonschema)
     assert arrow_schema == pa.schema([pa.field("root", pa.null())])
 
 
 # TODO: This is actually wrong. Fix 'nullable' inference.
 def test_arrow_schema_object():
     """Test ArrowSchema with object."""
-    arrow_schema = ArrowSchema.from_jsonschema(
+    jsonschema = JSONSchemaParser.parse(
         {
             "type": "object",
             "properties": {
@@ -21,6 +23,7 @@ def test_arrow_schema_object():
             },
         }
     )
+    arrow_schema = ArrowJSONSchemaConverter.from_jsonschema(jsonschema)
     assert arrow_schema == pa.schema(
         [
             pa.field("name", pa.string(), nullable=True),

@@ -2,6 +2,7 @@ from functools import singledispatchmethod
 
 import pyarrow as pa
 
+from schematools import jsonschema
 from schematools.jsonschema import (
     ArrayType,
     BaseJSONSchemaType,
@@ -12,6 +13,7 @@ from schematools.jsonschema import (
     NumberType,
     ObjectType,
     StringType,
+    UnionType,
 )
 
 from .convert import SchemaConverterBase
@@ -74,51 +76,40 @@ class ArrowToJSONSchemaTypeMap:
 
     @singledispatchmethod
     def convert(self, arrowtype: pa.DataType) -> BaseJSONSchemaType:
-        """Convert Apache Arrow type to JSON type."""
+        """Convert Apache Arrow type to JSON type.
+
+        PyArrow does not provide importable Type classes for all types, so we have to use
+        the `is_*` methods from pa.types for simple types.
+        """
+        if pa.types.is_string(arrowtype):
+            return StringType()
+
+        if pa.types.is_integer(arrowtype):
+            return IntegerType()
+
         raise NotImplementedError(f"Conversion of {arrowtype} is not supported")
 
     @convert.register
-    def convert_int64(self, arrowtype: pa.Int64Type) -> IntegerType:
-        """Convert Apache Arrow int64 type to JSON type."""
-        return IntegerType()
+    def convert_union(self, arrowtype: pa.UnionType) -> BaseJSONSchemaType:
+        """Convert Apache Arrow type to JSON type."""
+        fields = [arrowtype.field(i) for i in range(arrowtype.num_fields)]
+        field_types = [field.type for field in fields]
+        jsonschema_types = [
+            type(self.convert(field_type)) for field_type in field_types
+        ]
+        return UnionType.from_types(jsonschema_types)
 
     @convert.register
-    def convert_float64(self, arrowtype: pa.Float64Type) -> NumberType:
-        """Convert Apache Arrow float64 type to JSON type."""
-        return NumberType()
-
-    @convert.register
-    def convert_string(self, arrowtype: pa.StringType) -> StringType:
-        """Convert Apache Arrow string type to JSON type."""
-        return StringType()
-
-    @convert.register
-    def convert_bool(self, arrowtype: pa.BooleanType) -> BooleanType:
-        """Convert Apache Arrow bool type to JSON type."""
-        return BooleanType()
-
-    @convert.register
-    def convert_struct(self, arrowtype: pa.StructType) -> ObjectType:
-        """Convert Apache Arrow struct type to JSON type."""
-        properties = {field.name: self.convert(field.type) for field in arrowtype}
-        return ObjectType(properties=properties)
-
-    @convert.register
-    def convert_list(self, arrowtype: pa.ListType) -> ArrayType:
-        """Convert Apache Arrow list type to JSON type."""
+    def convert_array(self, arrowtype: pa.ListType | pa.LargeListType) -> ArrayType:
+        """Convert Apache Arrow type to ArrayType."""
         return ArrayType(items=self.convert(arrowtype.value_type))
-
-    @convert.register
-    def convert_null(self, arrowtype: pa.NullType) -> NullType:
-        """Convert Apache Arrow null type to JSON type."""
-        return NullType()
 
 
 class ArrowJSONSchemaConverter(SchemaConverterBase):
     """Apache Arrow schema representation."""
 
     @staticmethod
-    def from_jsonschema(cls, jsonschema: BaseJSONSchemaType) -> pa.Schema:
+    def from_jsonschema(jsonschema: BaseJSONSchemaType) -> pa.Schema:
         """Convert JSON schema to Apache Arrow schema."""
         if isinstance(jsonschema, ObjectType) and jsonschema.has_properties():
             return pa.schema(
@@ -142,7 +133,7 @@ class ArrowJSONSchemaConverter(SchemaConverterBase):
         )
 
     @staticmethod
-    def to_jsonschema(cls, arrow_schema: pa.Schema) -> BaseJSONSchemaType:
+    def to_jsonschema(arrow_schema: pa.Schema) -> BaseJSONSchemaType:
         """Convert Apache Arrow schema to JSON schema."""
         if len(arrow_schema) == 1 and arrow_schema[0].name == "root":
             return ArrowToJSONSchemaTypeMap().convert(arrow_schema[0].type)

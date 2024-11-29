@@ -15,6 +15,7 @@ from .types import (
     NumberType,
     ObjectType,
     StringType,
+    UnionType,
 )
 
 json_schema_root_type_map = {
@@ -40,11 +41,27 @@ def _handle_special_keys(jsonschema: dict) -> dict:
     return jsonschema
 
 
+def _handle_type(jsonschema: dict) -> t.Type[BaseJSONSchemaType]:
+    type_ = jsonschema.get("type")
+    if isinstance(type_, list):
+        types = [json_schema_root_type_map[t] for t in type_]
+        return UnionType.from_types(types)
+    return json_schema_root_type_map[type_]
+
+
 @class_singledispatch
 def parse_type(
     jsontype: t.Type[BaseJSONSchemaType], jsonschema: dict | None = None
 ) -> t.Any:
     raise NotImplementedError(f"Parsing of {jsontype} is not supported.")
+
+
+@parse_type.register
+def parse_union(jsontype: t.Type[UnionType], jsonschema: dict) -> t.Any:
+    types = jsonschema.get("type")
+    if types:
+        types = [json_schema_root_type_map[t] for t in types]
+    return UnionType.from_types(types)
 
 
 @parse_type.register
@@ -55,9 +72,7 @@ def parse_array(
     kwargs = _handle_special_keys(kwargs)
     item_type = kwargs.pop("items", {})
     if item_type:
-        kwargs["items"] = parse_type(
-            json_schema_root_type_map[item_type["type"]], item_type
-        )
+        kwargs["items"] = parse_type(_handle_type(item_type), item_type)
     return ArrayType(**kwargs)
 
 
@@ -89,8 +104,7 @@ def parse_object(jsontype: t.Type[ObjectType], jsonschema: dict) -> t.Any:
     properties = kwargs.get("properties")
     if properties:
         kwargs["properties"] = {
-            k: parse_type(json_schema_root_type_map[v["type"]], v)
-            for k, v in properties.items()
+            k: parse_type(_handle_type(v), v) for k, v in properties.items()
         }
     # TODO: handle patternProperties, additionalProperties etc.
     return ObjectType(**kwargs)
