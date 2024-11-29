@@ -8,9 +8,10 @@ def test_arrow_array():
     """Test conversion of array."""
     arrow_schema = pa.schema([pa.field("root", pa.list_(pa.string()))])
     jsonschema = ArrowJSONSchemaConverter.to_jsonschema(arrow_schema)
-    assert jsonschema == JSONSchemaParser.parse(
+    expected_jsonschema = JSONSchemaParser.parse(
         {"type": "array", "items": {"type": "string"}}
     )
+    assert jsonschema == expected_jsonschema
 
 
 def test_arrow_array_union_type():

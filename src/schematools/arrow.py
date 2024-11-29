@@ -88,7 +88,7 @@ class ArrowToJSONSchemaTypeMap:
     @singledispatchmethod
     def convert(
         self, arrowtype: pa.DataType, nullable: bool = False
-    ) -> t.Type[BaseJSONSchemaType]:
+    ) -> BaseJSONSchemaType:
         """Convert Apache Arrow type to JSON type.
 
         PyArrow does not provide importable Type classes for all types, so we have to use
@@ -97,10 +97,10 @@ class ArrowToJSONSchemaTypeMap:
         if pa.types.is_string(arrowtype):
             if nullable:
                 return UnionType.from_types([StringType, NullType])
-            return StringType
+            return StringType()
 
         if pa.types.is_integer(arrowtype):
-            return IntegerType
+            return IntegerType()
 
         raise NotImplementedError(f"Conversion of {arrowtype} is not supported")
 
