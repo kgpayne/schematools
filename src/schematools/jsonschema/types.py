@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 import typing as t
-from dataclasses import dataclass
+from dataclasses import Field, dataclass
 
 if t.TYPE_CHECKING:
 
@@ -25,12 +25,12 @@ T = t.TypeVar("T", bound=_JsonValue)
 
 
 @dataclass(frozen=True)
-class BaseJSONType:
+class BaseJSONSchemaType:
 
     id: str | None = None
     schema: str | None = None
     comment: str | None = None
-    type: str | None = None
+    type: str | list[str] | None = None
     title: str | None = None
     description: str | None = None
     default: T | None = None
@@ -42,15 +42,67 @@ class BaseJSONType:
     const: T | None = None
 
 
+class UnionType(BaseJSONSchemaType):
+    """Multi type."""
+
+    _instances: t.Dict[set[BaseJSONSchemaType], UnionType] = {}
+
+    type: t.List[str] | None = None
+
+    def __post_init__(self):
+        if self.type is None:
+            raise ValueError("types must be provided")
+
+    def is_nullable(self) -> bool:
+        """Check if type is nullable."""
+        return any(isinstance(t, NullType) for t in self.type)
+
+    def is_simple_nullable(self) -> bool:
+        """Check if type is simple nullable.
+
+        This checks for a special case of nullable, where the jsonschema representation
+        is effectively a simple type or null. E.g. `{"type": ["string", "null"]}`. In
+        other schema representations, nullable is commonly a flag on the type, e.g. in
+        PyArrow `pa.string(nullable=True)`.
+        """
+        return len(self.type) == 2 and any(isinstance(t, NullType) for t in self.type)
+
+    @property
+    def simple_nullable_type(self) -> BaseJSONSchemaType:
+        """Get simple nullable type."""
+        if self.is_simple_nullable():
+            return next(t for t in self.type if not isinstance(t, NullType))
+        raise ValueError("UnionType is not simple nullable")
+
+    @classmethod
+    def from_types(cls, types: t.List[t.Type[BaseJSONSchemaType]]) -> UnionType:
+        """Create UnionType from types."""
+
+        sorted_types = sorted(types, key=lambda t: t.__name__)
+        key = frozenset(sorted_types)
+
+        if key not in cls._instances:
+
+            @dataclass(frozen=True)
+            class CustomUnionType(UnionType, *types):
+                """Custom UnionType class."""
+
+                type = [t.type for t in types]
+
+            cls._instances[key] = CustomUnionType
+
+        return cls._instances[key]
+
+
 @dataclass(frozen=True)
-class BooleanType(BaseJSONType):
+class BooleanType(BaseJSONSchemaType):
     """Boolean type."""
 
     type: str = "boolean"
 
 
 @dataclass(frozen=True)
-class NullType(BaseJSONType):
+class NullType(BaseJSONSchemaType):
     """Null type."""
 
     type: str = "null"
@@ -62,27 +114,27 @@ class NullType(BaseJSONType):
 
 
 @dataclass(frozen=True)
-class ObjectType(BaseJSONType):
+class ObjectType(BaseJSONSchemaType):
     """Object type."""
 
     type: str = "object"
-    properties: t.Dict[str, BaseJSONType] | None = None
-    additionalProperties: bool | BaseJSONType | None = None
-    patternProperties: t.Dict[str, BaseJSONType] | None = None
-    unevaluatedProperties: BaseJSONType | None = None
+    properties: t.Dict[str, BaseJSONSchemaType] | None = None
+    additionalProperties: bool | BaseJSONSchemaType | None = None
+    patternProperties: t.Dict[str, BaseJSONSchemaType] | None = None
+    unevaluatedProperties: BaseJSONSchemaType | None = None
     required: t.List[str] | None = None
     minProperties: int | None = None
     maxProperties: int | None = None
-    allOf: t.List[BaseJSONType] | None = None
-    anyOf: t.List[BaseJSONType] | None = None
-    oneOf: t.List[BaseJSONType] | None = None
-    not_: BaseJSONType | None = None
-    if_: BaseJSONType | None = None
-    then: BaseJSONType | None = None
-    else_: BaseJSONType | None = None
-    propertyNames: BaseJSONType | None = None
+    allOf: t.List[BaseJSONSchemaType] | None = None
+    anyOf: t.List[BaseJSONSchemaType] | None = None
+    oneOf: t.List[BaseJSONSchemaType] | None = None
+    not_: BaseJSONSchemaType | None = None
+    if_: BaseJSONSchemaType | None = None
+    then: BaseJSONSchemaType | None = None
+    else_: BaseJSONSchemaType | None = None
+    propertyNames: BaseJSONSchemaType | None = None
     dependentRequired: t.Dict[str, t.List[str]] | None = None
-    dependentSchemas: t.Dict[str, BaseJSONType] | None = None
+    dependentSchemas: t.Dict[str, BaseJSONSchemaType] | None = None
 
     def has_properties(self) -> bool:
         """Check if object has properties."""
@@ -95,15 +147,15 @@ class ObjectType(BaseJSONType):
 
 
 @dataclass(frozen=True)
-class ArrayType(BaseJSONType):
+class ArrayType(BaseJSONSchemaType):
     """Array type."""
 
     type: str = "array"
-    items: BaseJSONType | bool | None = None
-    prefixItems: t.List[BaseJSONType] | None = None
-    additionalItems: BaseJSONType | bool | None = None
-    unevaluatedItems: BaseJSONType | bool | None = None
-    contains: BaseJSONType | None = None
+    items: BaseJSONSchemaType | bool | None = None
+    prefixItems: t.List[BaseJSONSchemaType] | None = None
+    additionalItems: BaseJSONSchemaType | bool | None = None
+    unevaluatedItems: BaseJSONSchemaType | bool | None = None
+    contains: BaseJSONSchemaType | None = None
     minContains: int | None = None
     maxContains: int | None = None
     minItems: int | None = None
@@ -117,7 +169,7 @@ class ArrayType(BaseJSONType):
 
 
 @dataclass(frozen=True)
-class _NumericType(BaseJSONType):
+class _NumericType(BaseJSONSchemaType):
     """Numeric type."""
 
     minimum: int | float | None = None
@@ -147,7 +199,7 @@ class IntegerType(_NumericType):
 
 
 @dataclass(frozen=True)
-class StringType(BaseJSONType):
+class StringType(BaseJSONSchemaType):
     """String type."""
 
     type: str = "string"

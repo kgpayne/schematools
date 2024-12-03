@@ -1,7 +1,7 @@
 import pytest
 
 from schematools.jsonschema import (
-    BaseJSONType,
+    BaseJSONSchemaType,
     DateTimeType,
     DateType,
     DurationType,
@@ -30,8 +30,8 @@ def validate_attrs(obj, attrs: dict):
 
 
 def test_empty_type():
-    with pytest.raises(NotImplementedError):
-        string_type = JSONSchemaParser.parse({})
+    empty_type = JSONSchemaParser.parse({})
+    assert empty_type is None
 
 
 def test_basic_string_type():

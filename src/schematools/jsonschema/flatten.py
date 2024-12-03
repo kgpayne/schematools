@@ -2,15 +2,17 @@
 
 import dataclasses
 
-from schematools.jsonschema.types import BaseJSONType, ObjectType
+from schematools.jsonschema.types import BaseJSONSchemaType, ObjectType
 
 DEFAULT_MAX_DEPTH = 10
 DEFAULT_SEPARATOR = "__"
 
 
 def flatten(
-    jsonschema: BaseJSONType, max_depth: int | None = None, separator: str | None = None
-) -> BaseJSONType:
+    jsonschema: BaseJSONSchemaType,
+    max_depth: int | None = None,
+    separator: str | None = None,
+) -> BaseJSONSchemaType:
     """Flatten JSON schema."""
     max_depth = max_depth if max_depth is not None else DEFAULT_MAX_DEPTH
     separator = separator if separator is not None else DEFAULT_SEPARATOR

@@ -4,7 +4,7 @@ from .flatten import flatten
 from .parse import JSONSchemaParser
 from .types import (
     ArrayType,
-    BaseJSONType,
+    BaseJSONSchemaType,
     BooleanType,
     DateTimeType,
     DateType,
@@ -22,6 +22,7 @@ from .types import (
     RelativeJSONPointerType,
     StringType,
     TimeType,
+    UnionType,
     URIReferenceType,
     URITemplateType,
     URIType,
@@ -30,7 +31,7 @@ from .types import (
 
 __all__ = [
     "ArrayType",
-    "BaseJSONType",
+    "BaseJSONSchemaType",
     "BooleanType",
     "DateTimeType",
     "DateType",
@@ -43,6 +44,7 @@ __all__ = [
     "IPv6Type",
     "JSONPointerType",
     "JSONSchema",
+    "JSONSchemaParser",
     "NullType",
     "NumberType",
     "ObjectType",
@@ -50,9 +52,9 @@ __all__ = [
     "RelativeJSONPointerType",
     "StringType",
     "TimeType",
+    "UnionType",
     "URIReferenceType",
     "URITemplateType",
     "URIType",
     "UUIDType",
-    "JSONSchemaParser",
 ]
