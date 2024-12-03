@@ -29,11 +29,8 @@ def test_arrow_array_union_type():
         ]
     )
     jsonschema = ArrowJSONSchemaConverter.to_jsonschema(arrow_schema)
-    assert (
-        jsonschema.type
-        == JSONSchemaParser.parse(
-            {"type": "array", "items": {"type": ["string", "integer"]}}
-        ).type
+    assert jsonschema == JSONSchemaParser.parse(
+        {"type": "array", "items": {"type": ["string", "integer"]}}
     )
 
 
@@ -42,5 +39,4 @@ def test_arrow_nullable():
     arrow_schema = pa.schema([pa.field("root", pa.string(), nullable=True)])
     jsonschema = ArrowJSONSchemaConverter.to_jsonschema(arrow_schema)
     expected_jsonschema = JSONSchemaParser.parse({"type": ["string", "null"]})
-    # TODO: fix equality check between two constructs of the same class
-    assert jsonschema.type == expected_jsonschema.type
+    assert jsonschema == expected_jsonschema

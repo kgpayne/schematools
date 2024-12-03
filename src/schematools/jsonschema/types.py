@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 import typing as t
-from dataclasses import dataclass
+from dataclasses import Field, dataclass
 
 if t.TYPE_CHECKING:
 
@@ -45,6 +45,8 @@ class BaseJSONSchemaType:
 class UnionType(BaseJSONSchemaType):
     """Multi type."""
 
+    _instances: t.Dict[set[BaseJSONSchemaType], UnionType] = {}
+
     type: t.List[str] | None = None
 
     def __post_init__(self):
@@ -76,13 +78,20 @@ class UnionType(BaseJSONSchemaType):
     def from_types(cls, types: t.List[t.Type[BaseJSONSchemaType]]) -> UnionType:
         """Create UnionType from types."""
 
-        @dataclass(frozen=True)
-        class CustomUnionType(UnionType, *types):
-            """Custom UnionType class."""
+        sorted_types = sorted(types, key=lambda t: t.__name__)
+        key = frozenset(sorted_types)
 
-            type = [t.type for t in types]
+        if key not in cls._instances:
 
-        return CustomUnionType
+            @dataclass(frozen=True)
+            class CustomUnionType(UnionType, *types):
+                """Custom UnionType class."""
+
+                type = [t.type for t in types]
+
+            cls._instances[key] = CustomUnionType
+
+        return cls._instances[key]
 
 
 @dataclass(frozen=True)
