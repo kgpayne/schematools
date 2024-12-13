@@ -12,3 +12,4 @@ This package aims to provide:
 - The JSON [spec](https://www.rfc-editor.org/rfc/pdfrfc/rfc8259.txt.pdf)
 - [JSONSchema.org](https://json-schema.org/)
 - [python-jsonschema](https://python-jsonschema.readthedocs.io/en/latest/) package
+- [openapi-python-client](https://github.com/openapi-generators/openapi-python-client/tree/main/openapi_python_client/parser) which has a parser for jsonschema built in
