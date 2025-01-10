@@ -41,6 +41,10 @@ class BaseJSONSchemaType:
     enum: t.List[T] | None = None
     const: T | None = None
 
+    def is_nullable(self) -> bool:
+        """Check if type is nullable."""
+        return False
+
 
 class UnionType(BaseJSONSchemaType):
     """Multi type."""
@@ -106,6 +110,9 @@ class NullType(BaseJSONSchemaType):
     """Null type."""
 
     type: str = "null"
+
+    def is_nullable(self):
+        return True
 
 
 ############
